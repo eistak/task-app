@@ -5,20 +5,16 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"go-ws/task-app/models"
 	"go-ws/task-app/tools"
-	"go-ws/task-app/viewmodel"
-
-	"github.com/labstack/echo/v4"
 )
-
-var tasks []models.Task
 
 // GetTasks finds all books
 func GetTasks() echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
 		db := tools.ConnectDB()
-		tasks = []models.Task{}
+		var tasks []models.Task
 		result := db.Find(&tasks)
 		if result.Error != nil {
 			log.Println("failed to get tasks.")
@@ -26,9 +22,9 @@ func GetTasks() echo.HandlerFunc {
 		}
 
 		// change tasks from array to struct
-		vmTasks := viewmodel.MakeTaskViewModel(tasks)
+		//vmTasks := viewmodel.MakeTaskViewModel(tasks)
 
-		return c.JSON(http.StatusOK, vmTasks)
+		return c.JSON(http.StatusOK, tasks)
 	}
 }
 
@@ -89,7 +85,7 @@ func UpdateTask() echo.HandlerFunc {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		if task.ID == 0 || task.Name == "" {
+		if task.ID == 0 || task.Content == "" {
 			errMsg := "id and name are required."
 			log.Println(errMsg, task)
 			return c.JSON(http.StatusBadRequest, errMsg)
